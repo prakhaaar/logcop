@@ -1,0 +1,32 @@
+{
+  "name": "logcop",
+  "version": "1.0.0",
+  "description": "CLI tool to detect and remove console.log statements before committing code",
+  "main": "index.js",
+  "bin": {
+    "logcop": "./bin/logcop.js"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "console-log",
+    "cleanup",
+    "debugging",
+    "cli-tool",
+    "git-hook",
+    "developer-tool"
+  ],
+  "author": "Prakhar Mishra",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "boxen": "^8.0.1",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.3",
+    "figlet": "^1.10.0",
+    "glob": "^13.0.6",
+    "gradient-string": "^3.0.0",
+    "ora": "^9.3.0"
+  }
+}
