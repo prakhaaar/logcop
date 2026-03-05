@@ -7,7 +7,7 @@ async function scanProject() {
   const spinner = ora("Scanning project...").start();
 
   //real engine for the file scan/
-  const files = glob.sync("**/*.{js,ts}", {
+  const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
     ignore: ["node_modules/**"],
   });
 
