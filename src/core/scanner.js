@@ -1,20 +1,28 @@
-const ora = require("ora");
+const ora = require("ora").default;
 const chalk = require("chalk");
-const boxen = require("boxen");
+const boxen = require("boxen").default;
+const glob = require("glob");
 
 async function scanProject() {
   const spinner = ora("Scanning project...").start();
 
-  await new Promise((r) => setTimeout(r, 1200));
+  //real engine for the file scan/
+  const files = glob.sync("**/*.{js,ts}", {
+    ignore: ["node_modules/**"],
+  });
 
   spinner.succeed(chalk.green("Scan completed"));
 
   console.log(
-    boxen(chalk.yellow("⚠ Found 12 console.log statements"), {
+    boxen(chalk.yellow(` Found ${files.length} JavaScript files in project`), {
       padding: 1,
       borderColor: "yellow",
     }),
   );
+
+  files.slice(0, 10).forEach((file) => {
+    console.log(" - " + file);
+  });
 }
 
 module.exports = { scanProject };

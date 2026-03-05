@@ -6,7 +6,7 @@ const ora = require("ora").default;
 const boxen = require("boxen").default;
 const figlet = require("figlet");
 const gradient = require("gradient-string");
-
+const { scanProject } = require("../src/core/scanner");
 const program = new Command();
 
 console.log(
@@ -38,18 +38,7 @@ program
   .command("scan")
   .description("Scan project for console logs")
   .action(async () => {
-    const spinner = ora("Scanning project...").start();
-
-    await new Promise((r) => setTimeout(r, 1200));
-
-    spinner.succeed(chalk.green("Scan completed"));
-
-    console.log(
-      boxen(chalk.yellow("⚠ Found 12 console.log statements"), {
-        padding: 1,
-        borderColor: "yellow",
-      }),
-    );
+    await await scanProject();
   });
 
 //  FIX
