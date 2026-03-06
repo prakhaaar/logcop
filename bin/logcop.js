@@ -7,26 +7,8 @@ const boxen = require("boxen").default;
 const figlet = require("figlet");
 const gradient = require("gradient-string");
 const { scanProject } = require("../src/core/scanner");
+const { fixProject } = require("../src/core/fixer");
 const program = new Command();
-
-console.log(
-  gradient.pastel.multiline(
-    figlet.textSync("LOGCOP", { horizontalLayout: "full" }),
-  ),
-);
-
-console.log(
-  boxen(
-    chalk.gray(
-      "🚓 Detect & eliminate console.log statements before production",
-    ),
-    {
-      padding: 1,
-      borderStyle: "round",
-      borderColor: "cyan",
-    },
-  ),
-);
 
 program
   .name("logcop")
@@ -38,7 +20,7 @@ program
   .command("scan")
   .description("Scan project for console logs")
   .action(async () => {
-    await await scanProject();
+    await scanProject();
   });
 
 //  FIX
@@ -46,18 +28,7 @@ program
   .command("fix")
   .description("Remove console logs automatically")
   .action(async () => {
-    const spinner = ora("Removing console logs...").start();
-
-    await new Promise((r) => setTimeout(r, 1500));
-
-    spinner.succeed(chalk.green("Console logs removed"));
-
-    console.log(
-      boxen(chalk.cyan("✨ Your codebase is now clean"), {
-        padding: 1,
-        borderColor: "cyan",
-      }),
-    );
+    await fixProject();
   });
 
 // INSTALL
@@ -70,13 +41,6 @@ program
     await new Promise((r) => setTimeout(r, 1000));
 
     spinner.succeed(chalk.green("Git hook installed"));
-
-    console.log(
-      boxen(
-        chalk.magenta("🛡 Console logs will now be blocked before commits"),
-        { padding: 1, borderColor: "magenta" },
-      ),
-    );
   });
 
 program.parse(process.argv);

@@ -33,7 +33,9 @@ function parseFile(file) {
             file,
             line: node.loc.start.line,
             type: node.callee.property.name,
-          });
+            start: node.start,
+            end: node.end,
+          }); //added start and end of the console statements just to reuse it in fixer.js;
         }
       },
     });
@@ -77,27 +79,10 @@ async function scanProject() {
   spinner.succeed(chalk.green("Scan completed"));
 
   if (results.length > 0) {
-    console.log(chalk.bold("\nDetected console statements:\n"));
-
     Object.keys(grouped).forEach((file) => {
-      console.log(chalk.cyan.bold(file));
-
-      grouped[file].forEach((log) => {
-        console.log(chalk.yellow(`   ⚠ line ${log.line} (${log.type})`));
-      });
-
-      console.log("");
+      grouped[file].forEach((log) => {});
     });
   }
-
-  console.log("");
-
-  console.log(
-    boxen(chalk.yellow(`⚠ Found ${results.length} console statements`), {
-      padding: 1,
-      borderColor: "yellow",
-    }),
-  );
 }
 
-module.exports = { scanProject };
+module.exports = { scanProject, parseFile };
