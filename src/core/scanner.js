@@ -28,6 +28,7 @@ function parseFile(file) {
           logs.push({
             file,
             line: node.loc.start.line,
+            type: node.callee.property.name,
           });
         }
       },
@@ -55,13 +56,28 @@ async function scanProject() {
     results.push(...logs);
   });
 
+  const grouped = {};
+
+  results.forEach((r) => {
+    if (!grouped[r.file]) {
+      grouped[r.file] = [];
+    }
+    grouped[r.file].push(r);
+  });
+
   spinner.succeed(chalk.green("Scan completed"));
 
   if (results.length > 0) {
     console.log(chalk.bold("\nDetected console statements:\n"));
 
-    results.forEach((r) => {
-      console.log(chalk.yellow(`⚠ ${r.file} : line ${r.line} (${r.type})`));
+    Object.keys(grouped).forEach((file) => {
+      console.log(chalk.cyan.bold(file));
+
+      grouped[file].forEach((log) => {
+        console.log(chalk.yellow(`   ⚠ line ${log.line} (${log.type})`));
+      });
+
+      console.log("");
     });
   }
 
