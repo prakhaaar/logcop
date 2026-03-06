@@ -10,6 +10,10 @@ const walk = require("acorn-walk");
 function parseFile(file) {
   const code = fs.readFileSync(file, "utf-8");
   const logs = [];
+  // fast skip if file doesn't contain console
+  if (!code.includes("console")) {
+    return logs;
+  }
   const allowedMethods = ["log", "error", "warn", "debug"];
   try {
     const ast = acorn.parse(code, {
@@ -46,9 +50,14 @@ async function scanProject() {
   //real engine for the file scan/
 
   const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
-    ignore: ["node_modules/**"],
+    ignore: [
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      ".next/**",
+    ],
   });
-
   let results = [];
 
   files.forEach((file) => {
