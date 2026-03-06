@@ -10,7 +10,7 @@ const walk = require("acorn-walk");
 function parseFile(file) {
   const code = fs.readFileSync(file, "utf-8");
   const logs = [];
-
+  const allowedMethods = ["log", "error", "warn", "debug"];
   try {
     const ast = acorn.parse(code, {
       ecmaVersion: "latest",
@@ -22,7 +22,8 @@ function parseFile(file) {
       CallExpression(node) {
         if (
           node.callee.type === "MemberExpression" &&
-          node.callee.object.name === "console"
+          node.callee.object.name === "console" &&
+          allowedMethods.includes(node.callee.property.name)
         ) {
           logs.push({
             file,
@@ -60,7 +61,7 @@ async function scanProject() {
     console.log(chalk.bold("\nDetected console statements:\n"));
 
     results.forEach((r) => {
-      console.log(chalk.yellow(`⚠ ${r.file} : line ${r.line}`));
+      console.log(chalk.yellow(`⚠ ${r.file} : line ${r.line} (${r.type})`));
     });
   }
 
