@@ -78,11 +78,37 @@ async function scanProject() {
 
   spinner.succeed(chalk.green("Scan completed"));
 
-  if (results.length > 0) {
-    Object.keys(grouped).forEach((file) => {
-      grouped[file].forEach((log) => {});
-    });
+  if (results.length === 0) {
+    console.log(
+      boxen(chalk.green(" ✔ No console statements found"), {
+        padding: 1,
+        borderColor: "green",
+      }),
+    );
+    return;
   }
+
+  console.log("");
+  Object.keys(grouped).forEach((file) => {
+    console.log(chalk.cyan.bold(`  ${file}`));
+
+    grouped[file].forEach((log) => {
+      console.log(
+        `    ${chalk.gray("→")} console.${chalk.yellow(log.type)} ${chalk.gray(`:${log.line}`)}`,
+      );
+    });
+
+    console.log("");
+  });
+
+  console.log(
+    boxen(
+      chalk.yellow(
+        ` Found ${results.length} console statement${results.length === 1 ? "" : "s"} across ${Object.keys(grouped).length} file${Object.keys(grouped).length === 1 ? "" : "s"}\n`,
+      ) + chalk.gray(" Run logcop fix to remove them"),
+      { padding: 1, borderColor: "yellow" },
+    ),
+  );
 }
 
 module.exports = { scanProject, parseFile };

@@ -51,7 +51,7 @@ async function fixProject() {
   spinner.succeed(chalk.green("Fix completed"));
 
   console.log(
-    boxen(chalk.cyan(`✨ Removed ${removed} console statements`), {
+    boxen(chalk.cyan(` Removed ${removed} console statements`), {
       padding: 1,
       borderColor: "cyan",
     }),
