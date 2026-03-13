@@ -12,10 +12,14 @@
   "keywords": [
     "console-log",
     "cleanup",
-    "debugging",
-    "cli-tool",
+    "cli",
     "git-hook",
-    "developer-tool"
+    "developer-tool",
+    "vibe-coding",
+    "security",
+    "linter",
+    "javascript",
+    "typescript"
   ],
   "author": "Prakhar Mishra",
   "license": "MIT",
