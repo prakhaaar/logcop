@@ -5,7 +5,7 @@ const boxen = require("boxen").default;
 const glob = require("glob");
 const acorn = require("acorn");
 const walk = require("acorn-walk");
-
+const { loadConfig } = require("./config");
 // parse a single file
 function parseFile(file) {
   const code = fs.readFileSync(file, "utf-8");
@@ -14,7 +14,10 @@ function parseFile(file) {
   if (!code.includes("console")) {
     return logs;
   }
-  const allowedMethods = ["log", "error", "warn", "debug"];
+  const config = loadConfig();
+  const allowedMethods = ["log", "error", "warn", "debug"].filter(
+    (x) => !config.keep.includes(x),
+  );
   try {
     const ast = acorn.parse(code, {
       ecmaVersion: "latest",
@@ -50,15 +53,9 @@ async function scanProject() {
   const spinner = ora("Scanning project...").start();
 
   //real engine for the file scan/
-
+  const config = loadConfig();
   const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
-    ignore: [
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-      "coverage/**",
-      ".next/**",
-    ],
+    ignore: config.ignore,
   });
   let results = [];
 

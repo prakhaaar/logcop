@@ -4,7 +4,7 @@ const ora = require("ora").default;
 const chalk = require("chalk");
 const boxen = require("boxen").default;
 const { parseFile } = require("./scanner");
-
+const { loadConfig } = require("./config");
 //detect logs
 function fixFile(file) {
   const code = fs.readFileSync(file, "utf-8");
@@ -45,17 +45,10 @@ function fixFile(file) {
 
 async function fixProject() {
   const spinner = ora("Removing console statements...").start();
-
+  const config = loadConfig();
   const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
-    ignore: [
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-      "coverage/**",
-      ".next/**",
-    ],
+    ignore: config.ignore,
   });
-
   let removed = 0;
 
   files.forEach((file) => {
