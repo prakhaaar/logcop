@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-
+const fs = require("fs");
+const path = require("path");
 const { Command } = require("commander");
 const chalk = require("chalk");
 const ora = require("ora").default;
@@ -32,7 +33,7 @@ program
   });
 
 // INSTALL
-program
+/*program
   .command("install-hook")
   .description("Install git pre-commit hook")
   .action(async () => {
@@ -42,5 +43,37 @@ program
 
     spinner.succeed(chalk.green("Git hook installed"));
   });
+*/
 
+program
+  .command("install-hook")
+  .description("Install git pre-commit hook")
+  .action(async () => {
+    const spinner = ora("Installing git hook...").start();
+
+    const hookDir = path.join(process.cwd(), ".git", "hooks");
+    const hookPath = path.join(hookDir, "pre-commit");
+
+    //check for .git's existence
+    if (!fs.existsSync(hookDir)) {
+      spinner.fail(
+        chalk.red("No .git directory found. Are you in a git repo?"),
+      );
+      process.exit(1);
+    }
+    const hookScript = `#!/bin/sh
+npx logcop scan --ci
+if [ $? -ne 0 ]; then
+  echo ""
+  echo " logcop: console statements detected. Run 'logcop fix' to remove them."
+  exit 1
+fi
+`;
+
+    fs.writeFileSync(hookPath, hookScript, { mode: 0o755 });
+
+    spinner.succeed(chalk.green("Git hook installed"));
+    console.log(chalk.gray(`  → ${hookPath}`));
+    console.log(chalk.gray("  logcop will now run before every commit."));
+  });
 program.parse(process.argv);
