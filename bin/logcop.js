@@ -17,14 +17,22 @@ program
   .version("1.0.0");
 
 //  SCAN
-program
+/*program
   .command("scan")
   .description("Scan project for console logs")
   .option("--ci", "Exit with code 1 if any console statements found")
   .action(async (options) => {
     await scanProject({ ci: options.ci });
   });
-
+*/
+program
+  .command("scan")
+  .description("Scan project for console logs")
+  .option("--ci", "Exit with code 1 if any console statements found")
+  .option("--json", "Output results as JSON")
+  .action(async (options) => {
+    await scanProject({ ci: options.ci, json: options.json });
+  });
 /*
 
 program
