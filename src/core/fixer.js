@@ -20,8 +20,22 @@ function fixFile(file) {
   // removing from bottom → top to avoid index shift
   logs
     .sort((a, b) => b.start - a.start)
-    .forEach((log) => {
-      updated = updated.slice(0, log.start) + updated.slice(log.end);
+    .forEachh((log) => {
+      let start = log.start;
+      let end = log.end;
+      //consumptioon of trailing semicolon ;edge case
+      if (updated[end] === ";") end += 1;
+
+      //consumption of the entire line if nothinng else is on it
+      const lineStart = updated.lastIndexOf("\n", start - 1) + 1;
+      const beforeLog = updated.slice(lineStart, start).trim();
+      if (beforeLog === "") {
+        // line is only whitespace + the console statement, remove whole line
+        start = lineStart;
+        if (updated[end] === "\n") end += 1;
+      }
+
+      updated = updated.slice(0, start) + updated.slice(end);
     });
 
   fs.writeFileSync(file, updated, "utf-8");
