@@ -75,7 +75,7 @@ function parseFile(file) {
   return logs;
 }
 
-async function scanProject() {
+async function scanProject({ ci = false } = {}) {
   const spinner = ora("Scanning project...").start();
 
   //real engine for the file scan/
@@ -119,11 +119,11 @@ async function scanProject() {
     return "";
   };
 
-  // pull out critical ones first — can't miss them
+  // pull out critical ones first  can't miss them
   const criticals = results.filter((r) => r.risk === "critical");
   if (criticals.length > 0) {
     console.log(
-      chalk.red.bold("\n  ⚠ CRITICAL RISK — potential secret leaks:\n"),
+      chalk.red.bold("\n   CRITICAL RISK  potential secret leaks:\n"),
     );
     criticals.forEach((log) => {
       console.log(
@@ -167,6 +167,11 @@ async function scanProject() {
         chalk.gray(" Run logcop fix to remove them"),
       { padding: 1, borderColor: criticalCount > 0 ? "red" : "yellow" },
     ),
+
+    // ci mode  exit 1 so pipelines fail
   );
+  if (ci && results.length > 0) {
+    process.exit(1);
+  }
 }
 module.exports = { scanProject, parseFile };

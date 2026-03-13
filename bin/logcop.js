@@ -20,8 +20,9 @@ program
 program
   .command("scan")
   .description("Scan project for console logs")
-  .action(async () => {
-    await scanProject();
+  .option("--ci", "Exit with code 1 if any console statements found")
+  .action(async (options) => {
+    await scanProject({ ci: options.ci });
   });
 
 //  FIX
