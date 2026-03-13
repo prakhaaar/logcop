@@ -6,6 +6,23 @@ const glob = require("glob");
 const acorn = require("acorn");
 const walk = require("acorn-walk");
 const { loadConfig } = require("./config");
+
+function detectRisk(argsSource, config) {
+  const text = argsSource.toLowerCase();
+
+  for (const pattern of config.risk.critical) {
+    if (text.includes(pattern.toLowerCase())) return "critical";
+  }
+  for (const pattern of config.risk.high) {
+    if (text.includes(pattern.toLowerCase())) return "high";
+  }
+  for (const pattern of config.risk.medium) {
+    if (text.includes(pattern.toLowerCase())) return "medium";
+  }
+
+  return null;
+}
+
 // parse a single file
 function parseFile(file) {
   const code = fs.readFileSync(file, "utf-8");
@@ -32,10 +49,19 @@ function parseFile(file) {
           node.callee.object.name === "console" &&
           allowedMethods.includes(node.callee.property.name)
         ) {
+          const argsSource = code.slice(
+            node.arguments[0]?.start ?? node.start,
+            node.arguments[node.arguments.length - 1]?.end ?? node.end,
+          );
+          const risk =
+            node.arguments.length > 0 ? detectRisk(argsSource, config) : null;
+
           logs.push({
             file,
             line: node.loc.start.line,
             type: node.callee.property.name,
+            risk,
+            argsSource,
             start: node.start,
             end: node.end,
           }); //added start and end of the console statements just to reuse it in fixer.js;
