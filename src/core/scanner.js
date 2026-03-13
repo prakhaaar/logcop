@@ -111,27 +111,62 @@ async function scanProject() {
     return;
   }
 
+  // risk badge helper
+  const riskBadge = (risk) => {
+    if (risk === "critical") return chalk.bgRed.white(" CRITICAL ");
+    if (risk === "high") return chalk.bgYellow.black(" HIGH ");
+    if (risk === "medium") return chalk.bgCyan.black(" MEDIUM ");
+    return "";
+  };
+
+  // pull out critical ones first — can't miss them
+  const criticals = results.filter((r) => r.risk === "critical");
+  if (criticals.length > 0) {
+    console.log(
+      chalk.red.bold("\n  ⚠ CRITICAL RISK — potential secret leaks:\n"),
+    );
+    criticals.forEach((log) => {
+      console.log(
+        `    ${riskBadge("critical")} ${chalk.gray(log.file)}${chalk.gray(`:${log.line}`)}`,
+      );
+      console.log(
+        `      ${chalk.gray("→")} console.${chalk.yellow(log.type)}(${chalk.red(log.argsSource)})\n`,
+      );
+    });
+  }
+
+  // then print all files grouped
   console.log("");
   Object.keys(grouped).forEach((file) => {
     console.log(chalk.cyan.bold(`  ${file}`));
 
     grouped[file].forEach((log) => {
+      const badge = riskBadge(log.risk);
+      const args = log.argsSource ? chalk.gray(`(${log.argsSource})`) : "";
       console.log(
-        `    ${chalk.gray("→")} console.${chalk.yellow(log.type)} ${chalk.gray(`:${log.line}`)}`,
+        `    ${chalk.gray("→")} console.${chalk.yellow(log.type)}${args} ${chalk.gray(`:${log.line}`)} ${badge}`,
       );
     });
 
     console.log("");
   });
 
+  // summary box
+  const criticalCount = results.filter((r) => r.risk === "critical").length;
+  const highCount = results.filter((r) => r.risk === "high").length;
+
   console.log(
     boxen(
       chalk.yellow(
         ` Found ${results.length} console statement${results.length === 1 ? "" : "s"} across ${Object.keys(grouped).length} file${Object.keys(grouped).length === 1 ? "" : "s"}\n`,
-      ) + chalk.gray(" Run logcop fix to remove them"),
-      { padding: 1, borderColor: "yellow" },
+      ) +
+        (criticalCount > 0
+          ? chalk.red(` 🔴 ${criticalCount} critical\n`)
+          : "") +
+        (highCount > 0 ? chalk.yellow(` 🟡 ${highCount} high risk\n`) : "") +
+        chalk.gray(" Run logcop fix to remove them"),
+      { padding: 1, borderColor: criticalCount > 0 ? "red" : "yellow" },
     ),
   );
 }
-
 module.exports = { scanProject, parseFile };
