@@ -25,14 +25,15 @@ program
     await scanProject({ ci: options.ci });
   });
 
-//  FIX
+/*
+
 program
   .command("fix")
   .description("Remove console logs automatically")
   .action(async () => {
     await fixProject();
   });
-
+*
 // INSTALL
 /*program
   .command("install-hook")
@@ -45,6 +46,15 @@ program
     spinner.succeed(chalk.green("Git hook installed"));
   });
 */
+
+//  FIX
+program
+  .command("fix")
+  .description("Remove console logs automatically")
+  .option("--dry-run", "Preview what would be removed without changing files")
+  .action(async (options) => {
+    await fixProject({ dryRun: options.dryRun });
+  });
 
 program
   .command("install-hook")
