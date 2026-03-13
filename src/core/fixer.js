@@ -20,7 +20,7 @@ function fixFile(file) {
   // removing from bottom → top to avoid index shift
   logs
     .sort((a, b) => b.start - a.start)
-    .forEachh((log) => {
+    .forEach((log) => {
       let start = log.start;
       let end = log.end;
       //consumptioon of trailing semicolon ;edge case
