@@ -8,7 +8,7 @@ const boxen = require("boxen").default;
 const figlet = require("figlet");
 const gradient = require("gradient-string");
 const { scanProject } = require("../src/core/scanner");
-const { fixProject } = require("../src/core/fixer");
+const { fixProject, commentProject } = require("../src/core/fixer");
 const program = new Command();
 
 program
@@ -54,6 +54,16 @@ program
   .option("--dry-run", "Preview what would be removed without changing files")
   .action(async (options) => {
     await fixProject({ dryRun: options.dryRun });
+  });
+
+//comment rather than fully removing the logs;
+// COMMENT
+program
+  .command("comment")
+  .description("Comment out console statements instead of removing them")
+  .option("--dry-run", "Preview what would be commented without changing files")
+  .action(async (options) => {
+    await commentProject({ dryRun: options.dryRun });
   });
 
 program

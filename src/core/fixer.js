@@ -45,7 +45,92 @@ function fixFile(file) {
 
   return logs.length;
 }
+function commentFile(file) {
+  const code = fs.readFileSync(file, "utf-8");
 
+  if (!code.includes("console")) return 0;
+
+  const logs = parseFile(file);
+
+  if (!logs.length) return 0;
+
+  const lines = code.split("\n");
+
+  let commented = 0;
+
+  logs.forEach((log) => {
+    const lineIndex = log.line - 1;
+    const line = lines[lineIndex];
+
+    // skip if already commented out
+    if (line.trimStart().startsWith("//")) return;
+
+    // get the indentation
+    const indent = line.match(/^(\s*)/)[1];
+
+    // comment it out with a logcop tag
+    lines[lineIndex] = `${indent}// ${line.trim()} // logcop: disabled`;
+    commented++;
+  });
+
+  fs.writeFileSync(file, lines.join("\n"), "utf-8");
+
+  return commented;
+}
+
+async function commentProject({ dryRun = false } = {}) {
+  const spinner = ora(
+    dryRun ? "Previewing comments..." : "Commenting out console statements...",
+  ).start();
+
+  const config = loadConfig();
+  const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
+    ignore: config.ignore,
+  });
+
+  let commented = 0;
+
+  files.forEach((file) => {
+    if (dryRun) {
+      const logs = parseFile(file);
+      const uncommented = logs.filter((log) => {
+        const lines = fs.readFileSync(file, "utf-8").split("\n");
+        return !lines[log.line - 1].trimStart().startsWith("//");
+      });
+      if (uncommented.length > 0) {
+        console.log("");
+        console.log(chalk.cyan.bold(`  ${file}`));
+        uncommented.forEach((log) => {
+          console.log(
+            `    ${chalk.gray("→")} would comment console.${chalk.yellow(log.type)}${chalk.gray(`(${log.argsSource})`)} ${chalk.gray(`:${log.line}`)}`,
+          );
+        });
+        commented += uncommented.length;
+      }
+    } else {
+      commented += commentFile(file);
+    }
+  });
+
+  spinner.succeed(
+    chalk.green(dryRun ? "Dry run completed" : "Comment completed"),
+  );
+
+  console.log(
+    boxen(
+      dryRun
+        ? chalk.cyan(
+            ` Would comment ${commented} console statement${commented === 1 ? "" : "s"}\n`,
+          ) +
+            chalk.gray(" (no files were changed)\n") +
+            chalk.gray(" Run logcop comment to apply")
+        : chalk.cyan(
+            ` Commented out ${commented} console statement${commented === 1 ? "" : "s"}`,
+          ),
+      { padding: 1, borderColor: "cyan" },
+    ),
+  );
+}
 async function fixProject({ dryRun = false } = {}) {
   const spinner = ora(
     dryRun ? "Previewing changes..." : "Removing console statements...",
@@ -91,4 +176,4 @@ async function fixProject({ dryRun = false } = {}) {
     ),
   );
 }
-module.exports = { fixProject };
+module.exports = { fixProject, commentProject };
