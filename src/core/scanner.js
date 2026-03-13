@@ -75,7 +75,7 @@ function parseFile(file) {
   return logs;
 }
 
-async function scanProject({ ci = false } = {}) {
+async function scanProject({ ci = false, json = false } = {}) {
   const spinner = ora("Scanning project...").start();
 
   //real engine for the file scan/
@@ -99,18 +99,47 @@ async function scanProject({ ci = false } = {}) {
     grouped[r.file].push(r);
   });
 
-  spinner.succeed(chalk.green("Scan completed"));
+  if (!json) spinner.succeed(chalk.green("Scan completed"));
+  else spinner.stop();
 
   if (results.length === 0) {
-    console.log(
-      boxen(chalk.green(" ✔ No console statements found"), {
-        padding: 1,
-        borderColor: "green",
-      }),
-    );
+    if (json) {
+      console.log(
+        JSON.stringify(
+          { total: 0, files: 0, critical: 0, high: 0, results: [] },
+          null,
+          2,
+        ),
+      );
+    } else {
+      console.log(
+        boxen(chalk.green(" ✔ No console statements found"), {
+          padding: 1,
+          borderColor: "green",
+        }),
+      );
+    }
     return;
   }
-
+  // json output mode
+  if (json) {
+    const output = {
+      total: results.length,
+      files: Object.keys(grouped).length,
+      critical: results.filter((r) => r.risk === "critical").length,
+      high: results.filter((r) => r.risk === "high").length,
+      results: results.map((r) => ({
+        file: r.file,
+        line: r.line,
+        type: r.type,
+        risk: r.risk || null,
+        argsSource: r.argsSource || null,
+      })),
+    };
+    console.log(JSON.stringify(output, null, 2));
+    if (ci && results.length > 0) process.exit(1);
+    return;
+  }
   // risk badge helper
   const riskBadge = (risk) => {
     if (risk === "critical") return chalk.bgRed.white(" CRITICAL ");
