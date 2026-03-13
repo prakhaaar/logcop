@@ -38,6 +38,9 @@ function fixFile(file) {
       updated = updated.slice(0, start) + updated.slice(end);
     });
 
+  // collapse multiple blank lines into one
+  updated = updated.replace(/\n{3,}/g, "\n\n");
+
   fs.writeFileSync(file, updated, "utf-8");
 
   return logs.length;
