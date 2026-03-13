@@ -8,7 +8,14 @@ const walk = require("acorn-walk");
 const { loadConfig } = require("./config");
 
 function detectRisk(argsSource, config) {
-  const text = argsSource.toLowerCase();
+  // strip string literals before checking — we only care about variable names
+  // e.g. console.log("request failed") should NOT match "request"
+  const withoutStrings = argsSource
+    .replace(/"[^"]*"/g, '""') // remove double quoted strings
+    .replace(/'[^']*'/g, "''") // remove single quoted strings
+    .replace(/`[^`]*`/g, "``"); // remove template literals
+
+  const text = withoutStrings.toLowerCase();
 
   for (const pattern of config.risk.critical) {
     if (text.includes(pattern.toLowerCase())) return "critical";
