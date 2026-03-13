@@ -46,8 +46,10 @@ function fixFile(file) {
   return logs.length;
 }
 
-async function fixProject() {
-  const spinner = ora("Removing console statements...").start();
+async function fixProject({ dryRun = false } = {}) {
+  const spinner = ora(
+    dryRun ? "Previewing changes..." : "Removing console statements...",
+  ).start();
   const config = loadConfig();
   const files = glob.sync("**/*.{js,ts,jsx,tsx}", {
     ignore: config.ignore,
@@ -55,17 +57,38 @@ async function fixProject() {
   let removed = 0;
 
   files.forEach((file) => {
-    removed += fixFile(file);
+    if (dryRun) {
+      const logs = parseFile(file);
+      if (logs.length > 0) {
+        console.log("");
+        console.log(chalk.cyan.bold(`  ${file}`));
+        logs.forEach((log) => {
+          console.log(
+            `    ${chalk.gray("→")} would remove console.${chalk.yellow(log.type)}${chalk.gray(`(${log.argsSource})`)} ${chalk.gray(`:${log.line}`)}`,
+          );
+        });
+        removed += logs.length;
+      }
+    } else {
+      removed += fixFile(file);
+    }
   });
 
-  spinner.succeed(chalk.green("Fix completed"));
+  spinner.succeed(chalk.green(dryRun ? "Dry run completed" : "Fix completed"));
 
   console.log(
-    boxen(chalk.cyan(` Removed ${removed} console statements`), {
-      padding: 1,
-      borderColor: "cyan",
-    }),
+    boxen(
+      dryRun
+        ? chalk.cyan(
+            ` Would remove ${removed} console statement${removed === 1 ? "" : "s"}\n`,
+          ) +
+            chalk.gray(" (no files were changed)\n") +
+            chalk.gray(" Run logcop fix to apply")
+        : chalk.cyan(
+            ` Removed ${removed} console statement${removed === 1 ? "" : "s"}`,
+          ),
+      { padding: 1, borderColor: "cyan" },
+    ),
   );
 }
-
 module.exports = { fixProject };
