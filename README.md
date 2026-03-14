@@ -1,5 +1,9 @@
 # 🚓 logcop
 
+<p align="center">
+  <img src="./logcop.png" alt="logcop" width="600" />
+</p>
+
 ### Detect. Remove. Protect.
 
 ---
