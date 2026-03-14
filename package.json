@@ -1,6 +1,6 @@
 {
   "name": "logcop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool to detect and remove console.log statements before committing code",
   "main": "index.js",
   "bin": {
