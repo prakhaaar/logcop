@@ -4,7 +4,7 @@
   "description": "CLI tool to detect and remove console.log statements before committing code",
   "main": "index.js",
   "bin": {
-    "logcop": "./bin/logcop.js"
+    "logcop": "bin/logcop.js"
   },
   "scripts": {
     "test": "echo \"No tests yet\""
