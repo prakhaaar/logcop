@@ -263,7 +263,7 @@ logcop treats them differently because they are different. One is noise. One is 
 
 Beyond that logcop gives you choices. You can fix, comment, preview, or just scan. You can keep `error` and `warn` while removing `log` and `debug`. You can run it in CI, wire it to a git hook, or pipe its output as JSON into your own tooling.
 
-It's not a replacement for ESLint. It's the thing ESLint can't do.
+It's not a replacement for ESLint. It's the thing ESLint can not do.
 
 ---
 
